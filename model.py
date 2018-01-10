@@ -1,10 +1,11 @@
 from dao import Dao
 
-class Model: 
+class Model:
+  
     def __init__(self, collection):
-        self.id = collection['id'] if 'id' in collection else None
-        self.name = collection['name'] if 'name' in collection else None
-        self.students = collection['students'] if 'students' in collection else None
+        self.id = collection['id']
+        self.name = collection['name']
+        self.students = collection['students']
 
     @staticmethod
     def get_by_id(student_Id):
@@ -19,11 +20,12 @@ class Model:
     def addStudent(studentInfo):
         dao = Dao()
         try:
-          new=dao.addStudent(studentInfo)
+          new= dao.addStudent(studentInfo)
           return Model(new)
         except:
           return None
         
+
     @staticmethod
     def update(student_Id, studentInfo):
         dao = Dao()
@@ -50,4 +52,15 @@ class Model:
           return Model(deleted)
         except:    
           return None
+
+    @staticmethod
+    def getStudents(student_Id):
+        dao = Dao()
+        allstud = dao.getStudents()
+        students = []
+        for s in allstud.find():
+            students.append(Model(s))
+        return students 
+
+
 
