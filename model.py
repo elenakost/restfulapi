@@ -1,14 +1,10 @@
 from dao import Dao
 
-collName='students'
-
-class Model:
-
-    #def save
-    #def get_by_params
-  
+class Model: 
     def __init__(self, collection):
         self.id = collection['id'] if 'id' in collection else None
+        self.name = collection['name'] if 'name' in collection else None
+        self.students = collection['students'] if 'students' in collection else None
 
     @staticmethod
     def get_by_id(student_Id):
@@ -23,12 +19,11 @@ class Model:
     def addStudent(studentInfo):
         dao = Dao()
         try:
-          new= dao.addStudent(studentInfo)
+          new=dao.addStudent(studentInfo)
           return Model(new)
         except:
           return None
         
-
     @staticmethod
     def update(student_Id, studentInfo):
         dao = Dao()
