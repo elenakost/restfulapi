@@ -99,7 +99,7 @@ class StudentList(Resource):
             exc = e
             print (str(exc))
         if deleted is None:
-            abort(404, message="Deleting Students {} failed".format(student_id))
+            abort(404, message="Deleting Students {} failed".format())
         return '', 204
 
 api.add_resource(StudentList, '/student')
