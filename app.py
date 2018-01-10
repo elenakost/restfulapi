@@ -56,7 +56,7 @@ class Student(Resource):
     def put(self, student_id):
         args = parser.parse_args()
         try:
-            if(jsSchema(args['name'])==args['name'] && idSchema(student_id)==student_id)):
+            if(jsSchema(args['name'])==args['name'] and idSchema(student_id)==student_id)):
                 n= {'name': args['name']}
                 student = Model.update(student_Id, n)
             else:
