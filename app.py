@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask
 from flask_restful import Resource, Api, reqparse, request
 from model import Model
 from voluptuous.voluptuous.schema_builder import Schema, Required
@@ -56,7 +56,7 @@ class Student(Resource):
     def put(self, student_id):
         args = parser.parse_args()
         try:
-            if(jsSchema(args['name'])==args['name'] and idSchema(student_id)==student_id)):
+            if(jsSchema(args['name'])==args['name'] and idSchema(student_id)==student_id):
                 n= {'name': args['name']}
                 student = Model.update(student_Id, n)
             else:
@@ -89,7 +89,7 @@ class StudentList(Resource):
             print (str(exc))
         return student, 201
 
-     def delete(self, student_id):
+    def delete(self, student_id):
         try:
             if(idSchema(student_id)==student_id):
                 deleted = Model.deleteAll(student_Id)
@@ -102,8 +102,9 @@ class StudentList(Resource):
             abort(404, message="Deleting Students {} failed".format(student_id))
         return '', 204
 
-api.add_resource(StudentList, '/students')
-api.add_resource(Students, '/students/<student_id>')
+api.add_resource(StudentList, '/student')
+api.add_resource(Student, '/students/<student_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)
+
