@@ -1,19 +1,17 @@
-version: '3'
+version: "2"
 services:
-  web:
-    image: elenakost/testing:firsttry
+  api:
     build: .
-    command: 'python -u app.py'
+    volumes:
+      - .:/app
     ports:
-      - '5000:5000'
-    environment:
-      PYTHONUNBUFFERED: 0
-      DB_NAME: ‘test’
-      COLLECTION_NAME: ‘students’
-      DB_HOST: 'mongo'
-      HOST_IP: '0.0.0.0'
-
+      - "80:80"
+    links:
+      - mongo
+    restart: on-failure
   mongo:
     image: mongo
+    volumes:
+      - ./data/db:/data/db
     ports:
-      - '27017:27017'
+      - "27017:27017"
