@@ -27,7 +27,7 @@ class Student(Resource):
         except:
            return 'error', 500
         if student:         
-            return json.dumps(student.__dict__), 200
+            return json.dumps(student.__dict__)
         abort(404, message="Getting Student {} failed".format(student_id))
         
     def delete(self, student_id):
@@ -63,14 +63,14 @@ class Student(Resource):
             return '', 406
         except:
             return '', 500
-        return student, 201
+        return json.dumps(student.__dict__), 201
         
     def put(self, student_id):
         args = parser.parse_args()
         try:
             if(jsSchema(args['name'])==args['name'] and idSchema(student_id)==student_id):
                 n= {'name': args['name']}
-                student = Model.update(student_Id, n)
+                student = Model.update(student_id, n)
             else:
                 raise AssertionError('MultipleInvalid not raised')           
         except MultipleInvalid as e:
@@ -79,7 +79,7 @@ class Student(Resource):
             return '', 406
         except:
             return '', 500
-        return student, 201
+        return json.dumps(student.__dict__), 201
     
 class StudentList(Resource):
     def get(self):
@@ -95,6 +95,7 @@ class StudentList(Resource):
     def post(self):
         args = parser.parse_args()
         try:
+            print(args['name'])
             if(jsSchema(args['name'])==args['name']):
                 n= {'name': args['name']}
                 student = Model.addStudent(n)
@@ -106,7 +107,7 @@ class StudentList(Resource):
             return '', 406
         except:
             return '', 500
-        return student, 201
+        return json.dumps(student.__dict__), 201
 
     def delete(self):
         try:
@@ -119,5 +120,5 @@ api.add_resource(StudentList, '/students')
 api.add_resource(Student, '/students/<student_id>')
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=5000 ,debug=True)
+    app.run(host='localhost', port=5000, debug=True)
 
