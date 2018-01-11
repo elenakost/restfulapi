@@ -1,12 +1,17 @@
-
-FROM python:3.6
+FROM python:3.6-slim
 
 WORKDIR /app
 
-ADD . /app
+# WORKDIR sets the currently working directory and creates it if not exist.
+# The below command can be simplified as 
+# ADD . .
+ADD . .
 
-RUN pip3 install -r requirements.txt
+RUN python3 -m pip install -r requirements.txt
 
-EXPOSE 5000
+ENV FLASK_DEBUG=1
+
+EXPOSE 80
 
 CMD ["python", "app.py"]
+
