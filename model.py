@@ -1,5 +1,5 @@
 from dao import Dao
-
+import sys
 class Model:
   
     def __init__(self, collection):
@@ -14,9 +14,11 @@ class Model:
           student = dao.get_by_id(student_Id)
         except:
           return None
-        if student:           
+        if student:
+            
             return Model(student)
-        return None
+        else:
+            return None
         
     @staticmethod
     def addStudent(studentInfo):
@@ -58,10 +60,11 @@ class Model:
         allstud = dao.getStudents()
         students = []
         for s in allstud.find():
-            print (s)
-            students.append(Model(s))
-        return repr(students)
+            print (s,file=sys.stderr)
+            students.append(repr(Model(s)))
+        return str(students)
 
    
+
 
 
