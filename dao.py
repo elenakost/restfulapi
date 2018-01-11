@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+import sys
 
 class Dao:
 	def __init__(self):
@@ -8,23 +9,24 @@ class Dao:
 		self.collection = self.db['students']
 
 	def get_by_id(self, student_Id):
-		student= self.collection.find_one({'_id': ObjectId(student_Id)})
-		if student is not None:
-			return student
-		return None
+                student= self.collection.find_one({'_id': ObjectId(student_Id)})
+                if student:
+                        return student
+                return None
 
 	def getStudents(self):
+		print("dao",file=sys.stderr)
 		return self.collection
 
 	def delete(self, student_Id):
-		student = self.collection.find_one({'_id:': ObjectId(student_Id)})
-		if not student:
-			return None
-		try:
-			deleted = self.collection.delete_one({"_id": ObjectId(student_Id)})
-		except:
-			raise
-		return deleted
+                try:
+                        student= self.collection.find_one({'_id': ObjectId(student_Id)})
+                        deleted = self.collection.delete_one({'_id': ObjectId(student_Id)})
+                except:
+                        raise
+                if student:
+                        return student
+                return None
     
 	def deleteAll(self):
         	self.collection.remove({})
@@ -50,4 +52,3 @@ class Dao:
 		return None
 
  
-
