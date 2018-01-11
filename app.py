@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_restful import Resource, Api, reqparse, request
+from flask_restful import Resource, Api, reqparse, request, abort
 from model import Model
 from voluptuous.voluptuous.schema_builder import Schema, Required
 from voluptuous.voluptuous.validators import Length, All, MultipleInvalid
@@ -23,19 +23,27 @@ class Student(Resource):
         except MultipleInvalid as e:
             exc = e
             print (str(exc))
-        if student is None:
-            abort(404, message="Getting Student {} failed".format(student_id))
-        return student
+            return '', 406
+        except:
+            return '', 500
+        if student:
+            return student
+        abort(404, message="Getting Student {} failed".format(student_id))
         
     def delete(self, student_id):
         try:
             if(idSchema(student_id)==student_id):
+                print("app")
                 deleted = Model.delete(student_Id)
+                print("app2")
             else:
                 raise AssertionError('MultipleInvalid not raised')           
         except MultipleInvalid as e:
             exc = e
             print (str(exc))
+            return '', 406
+        except:
+            return '', 500
         if student is None:
             abort(404, message="Deleting Student {} failed".format(student_id))
         return '', 204
@@ -51,6 +59,9 @@ class Student(Resource):
         except MultipleInvalid as e:
             exc = e
             print (str(exc))
+            return '', 406
+        except:
+            return '', 500
         return student, 201
         
     def put(self, student_id):
@@ -64,6 +75,9 @@ class Student(Resource):
         except MultipleInvalid as e:
             exc = e
             print (str(exc))
+            return '', 406
+        except:
+            return '', 500
         return student, 201
     
 class StudentList(Resource):
@@ -72,9 +86,12 @@ class StudentList(Resource):
             students = Model.getStudents() 
         except:
             print("an error")
-        if students is None:
-            abort(404, message="Getting all Students {} failed".format(student_id))
-        return students
+            return '',500
+        if students:
+            return students
+        else:
+            abort(404, message="Getting all Students failed")
+        
         
     def post(self):
         args = parser.parse_args()
@@ -87,6 +104,9 @@ class StudentList(Resource):
         except MultipleInvalid as e:
             exc = e
             print (str(exc))
+            return '', 406
+        except:
+            return '', 500
         return student, 201
 
     def delete(self, student_id):
@@ -98,11 +118,14 @@ class StudentList(Resource):
         except MultipleInvalid as e:
             exc = e
             print (str(exc))
+            return '',406
+        except:
+            return '', 500
         if deleted is None:
-            abort(404, message="Deleting Students {} failed".format())
+            abort(404, message="Deleting Students {} failed".format(student_id))
         return '', 204
 
-api.add_resource(StudentList, '/student')
+api.add_resource(StudentList, '/students')
 api.add_resource(Student, '/students/<student_id>')
 
 if __name__ == '__main__':
