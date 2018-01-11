@@ -5,7 +5,6 @@ class Model:
     def __init__(self, collection):
         self.id = collection['id']
         self.name = collection['name']
-        self.students = collection['students']
 
     @staticmethod
     def get_by_id(student_Id):
