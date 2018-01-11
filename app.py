@@ -33,7 +33,9 @@ class Student(Resource):
     def delete(self, student_id):
         try:
             if(idSchema(student_id)==student_id):
-                deleted = Model.delete(student_Id)
+                print("app begin")
+                deleted = Model.delete(student_id)
+                print("delete end")
             else:
                 raise AssertionError('MultipleInvalid not raised')           
         except MultipleInvalid as e:
@@ -117,4 +119,5 @@ api.add_resource(StudentList, '/students')
 api.add_resource(Student, '/students/<student_id>')
 
 if __name__ == '__main__':
-    app.run(host='localhost', port=5000,debug=True)
+    app.run(host='localhost', port=5000 ,debug=True)
+
