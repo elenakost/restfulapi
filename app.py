@@ -1,55 +1,72 @@
-from flask import Flask, request
-from flask_restful import reqparse, abort, Api, Resource
-from flask_pymongo import PyMongo
+from flask import Flask, jsonify
+from flask_restful import Resource, Api, reqparse, request, abort
+from model import Model
 
 app = Flask(__name__)
-mongo = PyMongo(app)
 api = Api(app)
-
-
-USERS = {
-    'user1': {'name': 'elena'},
-    'user2': {'name': 'bob'},
-}
-
-def abort_if_user_doesnt_exist(user_id):
-    if user_id not in USERS:
-        abort(404, message="User {} doesn't exist".format(user_id))
 
 parser = reqparse.RequestParser()
 parser.add_argument('name')
 
-class Users(Resource):
-    def get(self, user_id):
-        abort_if_user_doesnt_exist(user_id)
-        return USERS[user_id]
+class Student(Resource):
+    def get(self, student_id):
+        try:
+            student=Model.get_by_id(student_Id)
+        except:
+            abort(404, message="Getting Student {} failed".format(student_id))
+        return student
 
-    def delete(self, user_id):
-        abort_if_user_doesnt_exist(user_id)
-        del USERS[user_id]
+    def delete(self, student_id):
+        try:
+            deleted = Model.delete(student_Id)
+        except:
+            abort(404, message="Deleting Student {} failed".format(student_id))
         return '', 204
+    
+    def post(self):
+        args = parser.parse_args()
+        try:
+            n= {'name': args['name']}
+            student = Model.addStudent(n)
+        except:
+            abort(404, message="Adding Student {} failed".format(student_id))
+        return student, 201
 
     def put(self, user_id):
         args = parser.parse_args()
-        n= {'name': args['name']}
-        USERS[user_id] = n
-        return n, 201
+        try:
+            n= {'name': args['name']}
+            student = Model.update(student_Id, n)
+        except:
+            abort(404, message="Updating Student {} failed".format(student_id))
+        return student, 201
 
-class UsersList(Resource):
+class StudentList(Resource):
     def get(self):
-        return USERS
-    #not working, telling me post is an invalid method  
+        try:
+            students = Model.getAllStudents() #not implemented yet
+        except:
+            abort(404, message="Getting all Students {} failed".format(student_id))
+        return students
+    
     def post(self):
         args = parser.parse_args()
-        user = int(max(USERS.keys()).lstrip('user')) + 1
-        user_id = 'user%(user)' % {"user"}
-        USERS[user_id] = {'name': args['name']}
-        return USERS[user_id], 201
+        try:
+            n={'name': args['name']}
+            student = Model.addStudent(n)
+        except:
+             abort(404, message="Adding Students {} failed".format(student_id))
+        return student, 201
+    
+     def delete(self, student_id):
+        try:
+            deleted = Model.deleteAll(student_Id)
+        except:
+            abort(404, message="Deleting Students {} failed".format(student_id))
+        return '', 204
 
-#not sure what these 2 lines do
-api.add_resource(UsersList, '/users')
-api.add_resource(Users, '/users/<user_id>')
-
+api.add_resource(StudentList, '/students')
+api.add_resource(Students, '/students/<student_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)
