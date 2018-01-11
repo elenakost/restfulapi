@@ -27,7 +27,7 @@ class Student(Resource):
         except:
            return 'error', 500
         if student:         
-            return json.dumps(student.__dict__)
+            return json.dumps(student.__dict__), 200
         abort(404, message="Getting Student {} failed".format(student_id))
         
     def delete(self, student_id):
@@ -88,7 +88,7 @@ class StudentList(Resource):
         except:
             return 'an error',500
         if students:
-            return students
+            return students, 200
         abort(404, message="Getting all Students failed")
         
         
