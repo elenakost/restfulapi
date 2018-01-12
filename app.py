@@ -1,55 +1,92 @@
-from flask import Flask, request
-from flask_restful import reqparse, abort, Api, Resource
-from flask_pymongo import PyMongo
-
+from flask import Flask, jsonify
+from flask_restful import Resource, Api, reqparse, request, abort
+from model import Model
+from validator import validator, MultipleInvalid
+import json
 app = Flask(__name__)
-mongo = PyMongo(app)
 api = Api(app)
-
-
-USERS = {
-    'user1': {'name': 'elena'},
-    'user2': {'name': 'bob'},
-}
-
-def abort_if_user_doesnt_exist(user_id):
-    if user_id not in USERS:
-        abort(404, message="User {} doesn't exist".format(user_id))
 
 parser = reqparse.RequestParser()
 parser.add_argument('name')
 
-class Users(Resource):
-    def get(self, user_id):
-        abort_if_user_doesnt_exist(user_id)
-        return USERS[user_id]
-
-    def delete(self, user_id):
-        abort_if_user_doesnt_exist(user_id)
-        del USERS[user_id]
+class Student(Resource):
+    def get(self, student_id):
+        try:
+            validator.validateId(student_id)
+            student = Model.get_by_id(student_id) 
+        except MultipleInvalid as e:
+            return str(e), 400
+        except:
+           return 'error', 500
+        if not student:
+            abort(404, message = "Getting Student {} failed".format(student_id))
+        _return = jsonify(student.__dict__)
+        _return.status_code = 200
+        return _return      
+        
+        
+    def delete(self, student_id):
+        try:
+            validator.validateId(student_id)
+            deleted = Model.delete(student_id)          
+        except MultipleInvalid as e:
+            return str(e), 400
+        except:
+            return 'error', 500
+        if not deleted:
+            abort(404, message = "Deleting Student {} failed".format(student_id))
         return '', 204
-
-    def put(self, user_id):
+        
+        
+    def put(self, student_id):
         args = parser.parse_args()
-        n= {'name': args['name']}
-        USERS[user_id] = n
-        return n, 201
-
-class UsersList(Resource):
+        try:
+            validator.validatePut(student_id, args['name'])
+            student = Model.update(student_id, args)          
+        except MultipleInvalid as e:
+            return str(e), 400
+        except:
+            return 'error', 500
+        _return = jsonify(student.__dict__)
+        _return.status_code = 201
+        return _return    
+    
+class StudentList(Resource):
     def get(self):
-        return USERS
-    #not working, telling me post is an invalid method  
+        try:
+            students = Model.getStudents() 
+        except:
+            return 'an error', 500
+        if not students:
+            abort(404, message = "Getting all Students failed")
+        jsonlist = []
+        for s in students:
+            jsonlist.append(s.__dict__)
+        return jsonlist, 200
+        
+        
     def post(self):
         args = parser.parse_args()
-        user = int(max(USERS.keys()).lstrip('user')) + 1
-        user_id = 'user%(user)' % {"user"}
-        USERS[user_id] = {'name': args['name']}
-        return USERS[user_id], 201
+        try:
+            validator.validateData(args['name'])
+            student = Model.addStudent(args)        
+        except MultipleInvalid as e:
+            return str(e), 400
+        except:
+            return 'error', 500
+        _return = jsonify(student.__dict__)
+        _return.status_code = 201
+        return _return    
 
-#not sure what these 2 lines do
-api.add_resource(UsersList, '/users')
-api.add_resource(Users, '/users/<user_id>')
+    def delete(self):
+        try:
+            deleted = Model.deleteAll()
+        except:
+            return 'error', 500
+        return 'deleted', 204
 
+api.add_resource(StudentList, '/students')
+api.add_resource(Student, '/students/<student_id>')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host = '0.0.0.0', port = 5000, debug = True)
