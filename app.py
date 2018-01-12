@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 from flask_restful import Resource, Api, reqparse, request, abort
 from model import Model
-from validator import *
+from validator import validator, MultipleInvalid
 import json
 app = Flask(__name__)
 api = Api(app)
@@ -13,17 +13,15 @@ class Student(Resource):
     def get(self, student_id):
         try:
             validator.validateId(student_id)
-            student=Model.get_by_id(student_id) 
+            student = Model.get_by_id(student_id) 
         except MultipleInvalid as e:
-            exc = e
-            print (str(exc))
-            return '', 400
+            return str(e), 400
         except:
            return 'error', 500
         if not student:
-            abort(404, message="Getting Student {} failed".format(student_id))
-        _return=jsonify(student.__dict__)
-        _return.status_code=200
+            abort(404, message = "Getting Student {} failed".format(student_id))
+        _return = jsonify(student.__dict__)
+        _return.status_code = 200
         return _return      
         
         
@@ -32,12 +30,11 @@ class Student(Resource):
             validator.validateId(student_id)
             deleted = Model.delete(student_id)          
         except MultipleInvalid as e:
-            exc = e
-            return (str(exc)), 400
+            return str(e), 400
         except:
-            return '', 500
+            return 'error', 500
         if not deleted:
-            abort(404, message="Deleting Student {} failed".format(student_id))
+            abort(404, message = "Deleting Student {} failed".format(student_id))
         return '', 204
         
         
@@ -45,15 +42,13 @@ class Student(Resource):
         args = parser.parse_args()
         try:
             validator.validatePut(student_id, args['name'])
-            n= {'name': args['name']}
-            student = Model.update(student_id, n)          
+            student = Model.update(student_id, args)          
         except MultipleInvalid as e:
-            exc = e
-            return (str(exc)), 400
+            return str(e), 400
         except:
-            return '', 500
-        _return=jsonify(student.__dict__)
-        _return.status_code=201
+            return 'error', 500
+        _return = jsonify(student.__dict__)
+        _return.status_code = 201
         return _return    
     
 class StudentList(Resource):
@@ -61,41 +56,37 @@ class StudentList(Resource):
         try:
             students = Model.getStudents() 
         except:
-            return 'an error',500
+            return 'an error', 500
         if not students:
-            abort(404, message="Getting all Students failed")
-        jsonlist=[]
+            abort(404, message = "Getting all Students failed")
+        jsonlist = []
         for s in students:
             jsonlist.append(s.__dict__)
-        return jsonlist,200
+        return jsonlist, 200
         
         
     def post(self):
         args = parser.parse_args()
         try:
             validator.validateData(args['name'])
-            n= {'name': args['name']}
-            student = Model.addStudent(n)        
+            student = Model.addStudent(args)        
         except MultipleInvalid as e:
-            exc = e
-            return (str(exc)), 400
+            return str(e), 400
         except:
-            return '', 500
-        _return=jsonify(student.__dict__)
-        _return.status_code=201
+            return 'error', 500
+        _return = jsonify(student.__dict__)
+        _return.status_code = 201
         return _return    
 
     def delete(self):
         try:
             deleted = Model.deleteAll()
         except:
-            return '', 500
+            return 'error', 500
         return 'deleted', 204
 
 api.add_resource(StudentList, '/students')
 api.add_resource(Student, '/students/<student_id>')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
-
-
+    app.run(host = '0.0.0.0', port=5000, debug = True)
