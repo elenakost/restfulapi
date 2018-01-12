@@ -9,7 +9,7 @@ class validator:
 	def validateId(cls,sid):
 		return cls.idSchema(sid)
 	
-  @classmethod
+  	@classmethod
 	def validatePut(cls,sid, data):
 		cls.jsSchema(data)
 		cls.idSchema(sid)
